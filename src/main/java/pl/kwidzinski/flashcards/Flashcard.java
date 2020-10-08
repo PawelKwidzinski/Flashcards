@@ -1,5 +1,8 @@
 package pl.kwidzinski.flashcards;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.*;
 
 public class Flashcard {
@@ -93,5 +96,47 @@ public class Flashcard {
             System.out.printf("Can't remove \"%s\": there is no such card.", term);
             Flashcard.log.add("Can't remove \"" + term + "\": there is no such card.");
         }
+    }
+
+    public void importCards(String fileName) {
+        File file = new File(fileName);
+        String term;
+        String def;
+        int mistake;
+        int count = 0;
+        try (Scanner fileScanner = new Scanner(file)){
+            while (fileScanner.hasNext()) {
+                term = fileScanner.nextLine();
+                def = fileScanner.nextLine();
+                mistake = Integer.parseInt(fileScanner.nextLine());
+                flashcards.put(term, def);
+                mistakes.put(term, mistake);
+                count++;
+            }
+            System.out.printf("%d cards have been loaded.", count);
+            Flashcard.log.add(count + " cards have been loaded.");
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found.");
+            Flashcard.log.add("File not found.");
+        }
+    }
+
+    public void exportCards(String fileName) {
+        File file = new File(fileName);
+        int count = 0;
+        try (PrintWriter printWriter = new PrintWriter(file)) {
+            for (String s : flashcards.keySet()) {
+                printWriter.println(s);
+                printWriter.println(flashcards.get(s));
+                printWriter.println(mistakes.get(s));
+                count++;
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found.");
+            Flashcard.log.add("File not found.");
+        }
+        System.out.printf("%d cards have been saved", count);
+        Flashcard.log.add(count + " cards have been saved.");
+
     }
 }
